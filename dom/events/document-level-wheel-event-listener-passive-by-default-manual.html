@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Default passive document level wheel event listener manual test</title>
+<link rel="help" href="https://github.com/WICG/interventions/issues/64">
+<p>This is a manual test since there's no way to synthesize wheel events.
+Scroll by wheel to run the test.
+
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script>
+var eventHandlerResolve;
+var eventHandlerReject;
+eventHandlerPromise = new Promise(function(resolve, reject) {
+    eventHandlerResolve = resolve;
+    eventHandlerReject = reject;
+});
+document.addEventListener('wheel', function(e) {
+    if (!e.cancelable)
+      eventHandlerResolve();
+    else
+      eventHandlerReject('Wheel event must be non-cancelable.');
+});
+promise_test (async () => {
+  await eventHandlerPromise;
+}, "Wheel events are non-cancelable since the event listener is treated as " +
+"passive.");
+</script>
