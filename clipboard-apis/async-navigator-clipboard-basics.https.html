@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>Async Clipboard basic tests</title>
+<title>Async Clipboard input type validation tests</title>
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
 <script>
@@ -46,6 +46,26 @@ promise_test(function(t) {
                          navigator.clipboard.writeText());
 }, "navigator.clipboard.writeText() fails (expect DOMString)");
 
+/* clipboard.writeImage_POC() */
+
+promise_test(function() {
+  // TODO (huangdarwin): More properly load a blob using FileLoader.
+  let data = new Uint8Array([
+  137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,8,0,0,
+  0,8,8,2,0,0,0,75,109,41,220,0,0,0,34,73,68,65,84,8,215,99,120,
+  173,168,135,21,49,0,241,255,15,90,104,8,33,129,83,7,97,163,136,
+  214,129,93,2,43,2,0,181,31,90,179,225,252,176,37,0,0,0,0,73,69,
+  78,68,174,66,96,130]);
+  let image = new Blob([data], { type: "image/png" });
+
+  return navigator.clipboard.writeImage_POC(image);
+}, "navigator.clipboard.writeImage_POC(Blob) succeeds");
+
+promise_test(function(t) {
+  return promise_rejects(t, new TypeError(),
+                         navigator.clipboard.writeImage_POC());
+}, "navigator.clipboard.writeImage_POC() fails (expect Blob)");
+
 
 /* clipboard.read() */
 
@@ -65,5 +85,14 @@ promise_test(function() {
       assert_equals(typeof result, "string");
     });
 }, "navigator.clipboard.readText() succeeds");
+
+/* clipboard.readImage_POC() */
+
+promise_test(function() {
+  return navigator.clipboard.readImage_POC()
+    .then(function(result) {
+      assert_equals(typeof result, "object");
+    });
+}, "navigator.clipboard.readImage_POC() succeeds");
 
 </script>
